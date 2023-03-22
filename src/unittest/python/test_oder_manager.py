@@ -15,3 +15,12 @@ class TestOrderManager(TestCase):
                                           address="calle Leganés", phone= "123456789")
         self.assertEqual("holas", value)
         self.fail()
+
+    def test_product_id(self, ean13_code):
+        """..."""
+        my_manager = OrderManager
+        value = my_manager.validate_ean13(ean13_code)
+        self.assertEqual(True, value)
+
+    
+

@@ -9,10 +9,8 @@ class TestOrderManager(TestCase):
 
     def test_register_oder(self):
         my_manager = OrderManager()
-        value = my_manager.register_order(product_id="3662168005326",
-                                          order_type="regular",
-                                          zip_code="28918",
-                                          address="calle Leganés", phone= "123456789")
+        value = my_manager.register_order(product_id="3662168005326", order_type="regular", address="calle Leganés",
+                                          phone="123456789", zip_code="28918")
         self.assertEqual("holas", value)
         self.fail()
 

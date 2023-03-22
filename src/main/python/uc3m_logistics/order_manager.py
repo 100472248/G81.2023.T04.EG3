@@ -10,7 +10,7 @@ class OrderManager:
     @staticmethod
     def validate_ean13(ean13_code):
         """Este método devuelve (bool) si un string almacena un código EAN13"""
-        if ean13_code is not str:
+        if type(ean13_code) is not str:
             raise OrderManagementException("EAN13 not string")
         lista = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
         for n in range(0, len(ean13_code)):
@@ -18,9 +18,9 @@ class OrderManager:
                 raise OrderManagementException("Error. Contiene caracteres no numéricos")
         # Si la longitud del código no es 13, entonces no es de tipo EAN13
         if len(ean13_code) > 13:
-            raise OrderManagementException("EAN13 menor a 13 cifras")
-        if len(ean13_code) < 13:
             raise OrderManagementException("EAN13 mayor a 13 cifras")
+        if len(ean13_code) < 13:
+            raise OrderManagementException("EAN13 menor a 13 cifras")
         # Sumamos los números de las posiciones pares (menos la número 13)
         pares = 0
         for number in range(0, 6):
@@ -39,15 +39,14 @@ class OrderManager:
         modulo = suma % 10
         if modulo == 0:
             return int(ean13_code[12]) == modulo
-        # Veamos si es distinto de 0
         num = 10 - modulo
         if num != int(ean13_code[12]):
-            return False
+            raise OrderManagementException("Código no EAN13")
         return True
 
     @staticmethod
     def validate_address(address):
-        if address is not str:
+        if type(address) is not str:
             raise OrderManagementException("Address not string")
         if len(address) > 100:
             raise OrderManagementException("Dirección más larga de lo habitual")
@@ -63,7 +62,7 @@ class OrderManager:
 
     @staticmethod
     def validate_phone_number(phone_number):
-        if phone_number is not str:
+        if type(phone_number) is not str:
             raise OrderManagementException("Phone_number not str")
         lista = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
         for n in range(0, len(phone_number)):
@@ -77,15 +76,15 @@ class OrderManager:
 
     @staticmethod
     def validate_order_type(order_type):
-        if order_type is not str:
+        if type(order_type) is not str:
             raise OrderManagementException("Order_type not str")
-        if order_type != "REGULAR" and order_type != "PREMIUM":
+        if order_type not in ["REGULAR", "PREMIUM"]:
             raise OrderManagementException("Order_type no es REGULAR o PREMIUM")
         return True
 
     @staticmethod
     def validate_zip_code(zip_code):
-        if zip_code is not str:
+        if type(zip_code) is not str:
             raise OrderManagementException("Zip_code not str")
         lista = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
         for n in range(0, len(zip_code)):
@@ -100,12 +99,13 @@ class OrderManager:
             raise OrderManagementException("Las dos cifras iniciales deben estar entre 01 y 52")
         return True
 
-    def register_order(self, product_id, order_type, address, phone, zip_code):
-        self.validate_ean13(product_id)
-        self.validate_order_type(order_type)
-        self.validate_phone_number(phone)
-        self.validate_address(address)
-        self.validate_zip_code(zip_code)
+    @staticmethod
+    def register_order(product_id, order_type, address, phone, zip_code):
+        OrderManager.validate_ean13(product_id)
+        OrderManager.validate_order_type(order_type)
+        OrderManager.validate_phone_number(phone)
+        OrderManager.validate_address(address)
+        OrderManager.validate_zip_code(zip_code)
         my_order = OrderRequest(product_id, order_type, address, phone, zip_code)
         return str(my_order)
 

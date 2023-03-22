@@ -10,16 +10,65 @@ class MyTestCase(unittest.TestCase):
         """dummy test"""
         self.assertEqual(True, True)
 
-    def Test_EAN13(self):
+    def test_EAN13(self):
         my_order = OrderManager()
-        value = my_order.register_order("8421691423220", "REGULAR", "C/LISBOA, 4, MADRID", "123456789", "28005")
-        frase = OrderManager.register_order("8421691423220", "REGULAR", "C/LISBOA, 4, MADRID", "123456789", "28005")
+        value = my_order.register_order("8421691423220", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
+        frase = OrderManager.register_order("8421691423220", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
         self.assertEqual(frase, str(value))
-    def Test_EAN13notNumber(self):
+
+    def test_EAN13notString(self):
         my_order = OrderManager()
         with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order("842169142322A", "REGULAR", "C/LISBOA, 4, MADRID", "123456789", "28005")
+            value = my_order.register_order(12, "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789",
+                                            "28005")
+        self.assertEqual("EAN13 not string", invalido.exception.message)
+
+    def test_EAN13notNumber(self):
+        my_order = OrderManager()
+        with self.assertRaises(OrderManagementException) as invalido:
+            value = my_order.register_order("codigoean13", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
         self.assertEqual("Error. Contiene caracteres no numéricos", invalido.exception.message)
+
+    def test_Corto(self):
+        my_order = OrderManager()
+        with self.assertRaises(OrderManagementException) as invalido:
+            value = my_order.register_order("842169142322", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
+        self.assertEqual("EAN13 menor a 13 cifras", invalido.exception.message)
+
+    def test_Largo(self):
+        my_order = OrderManager()
+        with self.assertRaises(OrderManagementException) as invalido:
+            value = my_order.register_order("84216914232256", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
+        self.assertEqual("EAN13 mayor a 13 cifras", invalido.exception.message)
+
+    def test_notCorrect(self):
+        my_order = OrderManager()
+        with self.assertRaises(OrderManagementException) as invalido:
+            value = my_order.register_order("8421691423228", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
+        self.assertEqual("Código no EAN13", invalido.exception.message)
+
+    def test_order_REGULAR(self):
+        my_order = OrderManager()
+        value = my_order.register_order("8421691423220", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
+        frase = OrderManager.register_order("8421691423220", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789",
+                                            "28005")
+        self.assertEqual(frase, str(value))
+
+    def test_order_PRIVATE(self):
+        my_order = OrderManager()
+        value = my_order.register_order("8421691423220", "PREMIUM", "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
+        frase = OrderManager.register_order("8421691423220", "PREMIUM", "C/LISBOA, 4, MADRID, SPAIN", "123456789",
+                                            "28005")
+        self.assertEqual(frase, str(value))
+
+    def test_orderNoCorrecto(self):
+        my_order = OrderManager()
+        with self.assertRaises(OrderManagementException) as invalido:
+            value = my_order.register_order("8421691423220", "INVALIDO", "C/LISBOA, 4, MADRID, SPAIN", "123456789",
+                                            "28005")
+        self.assertEqual("Order_type no es REGULAR o PREMIUM", invalido.exception.message)
+
+
 
 
 

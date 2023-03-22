@@ -91,7 +91,7 @@ class OrderManager:
             if zip_code[n] not in lista:
                 raise OrderManagementException("Error. Contiene caracteres no numéricos")
         if len(zip_code) < 5:
-            raise OrderManagementException("Zip-code más corto de 5 cifras")
+            raise OrderManagementException("Zip_code más corto de 5 cifras")
         if len(zip_code) > 5:
             raise OrderManagementException("Zip_code más largo de 5 cifras")
         cifras = int(zip_code[0:2])

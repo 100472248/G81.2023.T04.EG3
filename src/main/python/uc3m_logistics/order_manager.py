@@ -30,19 +30,20 @@ class OrderManager:
         for number in range(0, 6):
             impares += int(ean13_code[2 * number + 1])
         # Sumamos los pares con los impares multiplicados por 3 (ponderados)
-        impares = impares * 3
-        suma = pares + impares
+        suma = pares + impares*3
         # Tenemos que comprobar que la diferencia del multiplo de 10 más
         # cercano a suma por arriba y suma sea igual que el ultimo digito
         # de ean13
         # Comprobemos el caso de que esa diferencia sea 0
         modulo = suma % 10
         if modulo == 0:
-            return int(ean13_code[12]) == modulo
-        num = 10 - modulo
-        if num != int(ean13_code[12]):
-            raise OrderManagementException("Código no EAN13")
-        return True
+            num = modulo
+        else:
+            num = 10 - modulo
+        if num == int(ean13_code[12]):
+            return True
+        else:
+            raise OrderManagementException("No cumple el checksum")
 
     @staticmethod
     def validate_address(address):
@@ -107,5 +108,7 @@ class OrderManager:
         OrderManager.validate_address(address)
         OrderManager.validate_zip_code(zip_code)
         my_order = OrderRequest(product_id, order_type, address, phone, zip_code)
-        return str(my_order)
+        return my_order.order_id
+
+
 

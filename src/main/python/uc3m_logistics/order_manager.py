@@ -12,6 +12,7 @@ class OrderManager:
         """Este método devuelve (bool) si un string almacena un código EAN13"""
         if type(ean13_code) is not str:
             raise OrderManagementException("EAN13 not string")
+        # CAMBIAR ESTO POR UN STRING EN VEZ DE UNA LISTA
         lista = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
         for n in range(0, len(ean13_code)):
             if ean13_code[n] not in lista:
@@ -109,6 +110,10 @@ class OrderManager:
         OrderManager.validate_zip_code(zip_code)
         my_order = OrderRequest(product_id, order_type, address, phone, zip_code)
         return my_order.order_id
+
+    @staticmethod
+    def deliver_product(tracking_number):
+        return 0
 
 
 

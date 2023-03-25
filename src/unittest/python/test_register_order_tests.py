@@ -18,14 +18,15 @@ class MyTestCase(unittest.TestCase):
     @freeze_time("2023-03-24")
     def test_all_correct(self):
         my_order = OrderManager()
-        value = my_order.register_order("8421691423220", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
+        value = my_order.register_order("8421691423220", "REGULAR",
+                                        "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
         self.assertEqual("caf7eace516dced5512b338105303c83", str(value))
 
     def test_EAN13notString(self):
         my_order = OrderManager()
         with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order(12, "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789",
-                                            "28005")
+            value = my_order.register_order(12, "REGULAR",
+                                            "C/LISBOA, 4, MADRID, SPAIN", "123456789","28005")
         self.assertEqual("EAN13 not string", invalido.exception.message)
 
     def test_EAN13notNumber(self):
@@ -198,7 +199,6 @@ class MyTestCase(unittest.TestCase):
                                             "12345678", "28005")
         self.assertEqual("Phone_number más corto de 9 cifras", invalido.exception.message)
 
-
     def test_VL10(self):
         my_order = OrderManager()
         with self.assertRaises(OrderManagementException) as invalido:
@@ -321,7 +321,8 @@ class MyTestCase(unittest.TestCase):
         datos = {"product_id": "8421691423220", "order-id": "REGULAR", "address": "C/LISBOA, 4, MADRID, SPAIN",
                  "phone_number": "123456789", "zip_code": "28005"}
         datos["_OrderRequest__order_id"] = OrderManager.register_order("8421691423220", "REGULAR",
-                                            "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
+                                                                       "C/LISBOA, 4, MADRID, SPAIN", "123456789",
+                                                                       "28005")
         dir = "C:/Users/jaime/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles"
         file_name = "f1.json"
         with open(os.path.join(dir, file_name), 'w') as file:
@@ -334,8 +335,6 @@ class MyTestCase(unittest.TestCase):
         if data_list["_OrderRequest__order_id"] == "caf7eace516dced5512b338105303c83":
             found = True
         self.assertTrue(found)
-
-
 
 
 if __name__ == '__main__':

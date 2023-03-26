@@ -14,9 +14,8 @@ class OrderManager:
         """Este método devuelve (bool) si un string almacena un código EAN13"""
         if type(ean13_code) is not str:
             raise OrderManagementException("EAN13 not string")
-        # CAMBIAR ESTO POR UN STRING EN VEZ DE UNA LISTA
-        lista = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
-        for n in range(0, len(ean13_code)):
+        lista = "0123456789"
+        for n in range(len(ean13_code)):
             if ean13_code[n] not in lista:
                 raise OrderManagementException("Error. Contiene caracteres no numéricos")
         # Si la longitud del código no es 13, entonces no es de tipo EAN13
@@ -68,8 +67,8 @@ class OrderManager:
     def validate_phone_number(phone_number):
         if type(phone_number) is not str:
             raise OrderManagementException("Phone_number not str")
-        lista = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
-        for n in range(0, len(phone_number)):
+        lista = "0123456789"
+        for n in range(len(phone_number)):
             if phone_number[n] not in lista:
                 raise OrderManagementException("Error. Contiene caracteres no numéricos")
         if len(phone_number) < 9:
@@ -90,8 +89,8 @@ class OrderManager:
     def validate_zip_code(zip_code):
         if type(zip_code) is not str:
             raise OrderManagementException("Zip_code not str")
-        lista = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
-        for n in range(0, len(zip_code)):
+        lista = "0123456789"
+        for n in range(len(zip_code)):
             if zip_code[n] not in lista:
                 raise OrderManagementException("Error. Contiene caracteres no numéricos")
         if len(zip_code) < 5:
@@ -118,6 +117,66 @@ class OrderManager:
         try:
             with open(input_file, mode ='r', encoding="UTF-8") as file:
                 datos = json.load(file)
+                # Para comprobar si el formato de las claves es correcto
+                claves = list(datos.keys())
+                if claves != ["Order_id", "ContactEmail"]:
+                    raise OrderManagementException("Estructura del fichero incorrecta")
+                # Para comprobar si el formato de order_id es correcto
+                order_id = datos["Order_id"]
+                if len(order_id) != 32:
+                    raise OrderManagementException("Order_id invalido")
+                caracteres_hex = "0123456789abcdef"
+                for i in range(len(order_id)):
+                    if order_id[i] not in caracteres_hex:
+                        raise OrderManagementException("Order_id invalido")
+                # Para comprobar si el formato de ContactEmail es correcto
+                email = datos["ContactEmail"]
+                # Comprobamos si tiene @ y si el formato entre el inicio del mail
+                # y esta es correcto
+                caracteres_validos = "qwertyuiopasdfghjklñzxcvbnm0123456789"
+                caracteres_validos_ext = "qwertyuiopasdfghjklñzxcvbnm"
+                tiene_at = False
+                posicion_at = 0
+                for i in range(len(email)):
+                    if email[i] == "@":
+                        tiene_at = True
+                        posicion_at = i
+                        break
+                if tiene_at:
+                    email_bef_at = email[0:posicion_at]
+                    if len(email_bef_at) == 0:
+                        raise OrderManagementException("ContactEmail invalido")
+                    for i in range(len(email_bef_at)):
+                        if email_bef_at[i] not in caracteres_validos:
+                            raise OrderManagementException("ContactEmail invalido")
+                else:
+                    raise OrderManagementException("ContactEmail invalido")
+                # Comprobamos si tiene punto despues del arroba y si el formato entre
+                # el @ y el punto es correcto
+                email_aft_at = email[posicion_at + 1:]
+                tiene_punto = False
+                posicion_punto = 0
+                for i in range(len(email)):
+                    if email[i] == ".":
+                        posicion_punto = i
+                        tiene_punto = True
+                        break
+                if tiene_punto:
+                    email_bef_p = email[posicion_at + 1:posicion_punto]
+                    if len(email_bef_p) == 0:
+                        raise OrderManagementException("ContactEmail invalido")
+                    for i in range(len(email_bef_p)):
+                        if email_bef_p[i] not in caracteres_validos:
+                            raise OrderManagementException("ContactEmail invalido")
+                else:
+                    raise OrderManagementException("ContactEmail invalido")
+                # Comprobamos si la extension tiene el formato correcto
+                email_aft_p = email[posicion_punto + 1:]
+                if len(email_aft_p) != 3:
+                    raise OrderManagementException("ContactEmail invalido")
+                for i in range(len(email_aft_p)):
+                    if email_aft_p[i] not in caracteres_validos_ext:
+                        raise OrderManagementException("ContactEmail invalido")
         except FileNotFoundError as ex:
             raise OrderManagementException("Archivo no encontrado") from ex
         except json.JSONDecodeError as ex:
@@ -125,6 +184,7 @@ class OrderManager:
 
     @staticmethod
     def send_product(input_file):
+        OrderManager.validate_json(input_file)
 
         return 0
 

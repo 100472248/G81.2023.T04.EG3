@@ -1,4 +1,6 @@
 """Module """
+import json
+
 from uc3m_logistics.order_request import OrderRequest
 from uc3m_logistics.order_management_exception import OrderManagementException
 
@@ -110,6 +112,21 @@ class OrderManager:
         OrderManager.validate_zip_code(zip_code)
         my_order = OrderRequest(product_id, order_type, address, phone, zip_code)
         return my_order.order_id
+
+    @staticmethod
+    def validate_json(input_file):
+        try:
+            with open(input_file, mode ='r', encoding="UTF-8") as file:
+                datos = json.load(file)
+        except FileNotFoundError as ex:
+            raise OrderManagementException("Archivo no encontrado") from ex
+        except json.JSONDecodeError as ex:
+            raise OrderManagementException("JSON Decode Error - El archivo no tiene formato JSON") from ex
+
+    @staticmethod
+    def send_product(input_file):
+
+        return 0
 
     @staticmethod
     def deliver_product(tracking_number):

@@ -1,6 +1,13 @@
 [
     {
         "product_id": "8421691423220",
+        "order_type": "PREMIUM",
+        "address": "C/LISBOA, 4, MADRID, SPAIN",
+        "phone": "123456789",
+        "zip_code": "28005"
+    },
+    {
+        "product_id": "8421691423220",
         "order_type": "REGULAR",
         "address": "C/LISBOA, 4, MADRID, SPAIN",
         "phone": "123456789",

@@ -131,6 +131,8 @@ class OrderManager:
                     if item["product_id"] == order["product_id"] and item["order_type"] == order["order_type"] and item["address"] == order["address"] and item["phone"] == order["phone"] and item["zip_code"] == order["zip_code"] :
                         raise OrderManagementException("Producto ya existente en el almacén.")
                 data_file.append(order)
+            os.remove(file_store)
+            with open(file_store, mode="w", encoding = "UTF-8") as file:
                 json.dump(data_file, file, indent=4)
 
     @staticmethod

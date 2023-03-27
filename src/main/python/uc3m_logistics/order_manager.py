@@ -1,6 +1,7 @@
 """Module """
 import json
-
+import os
+from pathlib import Path
 from uc3m_logistics.order_request import OrderRequest
 from uc3m_logistics.order_management_exception import OrderManagementException
 
@@ -110,7 +111,27 @@ class OrderManager:
         OrderManager.validate_address(address)
         OrderManager.validate_zip_code(zip_code)
         my_order = OrderRequest(product_id, order_type, address, phone, zip_code)
+        OrderManager.crear_fichero(product_id, order_type, address, phone, zip_code)
         return my_order.order_id
+
+    @staticmethod
+    def crear_fichero(product_id, order_type, address, phone, zip_code):
+        order = {"product_id": product_id, "order_type": order_type, "address": address, "phone": phone,
+                 "zip_code": zip_code}
+        dir = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
+        file_store = dir + "storage.json"
+        if os.path.isfile(file_store) is False:
+            with open(file_store, mode="w", encoding="UTF-8") as file:
+                listorder = [order]
+                json.dump(listorder, file, indent=4)
+        else:
+            with open(file_store, mode="r", encoding = "UTF-8") as file:
+                data_file = json.load(file)
+                for item in data_file:
+                    if item["product_id"] == order["product_id"] and item["order_type"] == order["order_type"] and item["address"] == order["address"] and item["phone"] == order["phone"] and item["zip_code"] == order["zip_code"] :
+                        raise OrderManagementException("Producto ya existente en el almacén.")
+                data_file.append(order)
+                json.dump(data_file, file, indent=4)
 
     @staticmethod
     def validate_json(input_file):

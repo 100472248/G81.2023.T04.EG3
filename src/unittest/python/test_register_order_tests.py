@@ -9,7 +9,6 @@ from freezegun import freeze_time
 
 class MyTestCase(unittest.TestCase):
     """class for testing the register_order method"""
-
     def test_something(self):
         """dummy test"""
         self.assertEqual(True, True)
@@ -316,26 +315,32 @@ class MyTestCase(unittest.TestCase):
         self.assertNotEqual(True, invalido.exception.message, "Exception. Phone number wrong")
 """
     @freeze_time("2023-03-24")
-    def test_file_created(self):
-        datos = {"product_id": "8421691423220", "order-id": "REGULAR", "address": "C/LISBOA, 4, MADRID, SPAIN",
-                 "phone_number": "123456789", "zip_code": "28005"}
-        datos["_OrderRequest__order_id"] = OrderManager.register_order("8421691423220", "REGULAR",
-                                                                       "C/LISBOA, 4, MADRID, SPAIN", "123456789",
-                                                                       "28005")
-        dir = "C:/Users/jaime/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles"
-        file_name = "f1.json"
-        with open(os.path.join(dir, file_name), 'w') as file:
-            json.dump(datos, file)
+    def test_file_checked(self):
         JSON_FILES_PATH = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
-        file_store = JSON_FILES_PATH + file_name
+        file_store = JSON_FILES_PATH + "f1.json"
+        if os.path.isfile(file_store):
+            os.remove(file_store)
+        my_order = OrderManager()
+        value = my_order.register_order("8421691423220", "REGULAR",
+                                        "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
+        self.assertEqual("caf7eace516dced5512b338105303c83", str(value))
+
         with (open(file_store, "r", encoding="UTF-8", newline="")) as file:
             data_list = json.load(file)
         found = False
-        if data_list["_OrderRequest__order_id"] == "caf7eace516dced5512b338105303c83":
-            found = True
+        for item in data_list:
+            if item["_OrderRequest__order_id"] == "caf7eace516dced5512b338105303c83":
+                found = True
         self.assertTrue(found)
 """
 
+
+"""    def test_file_wrong(self):
+        JSON_FILES_PATH = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
+        file_store = JSON_FILES_PATH + "f2.json"
+        with (open(file_store, "r", encoding="UTF-8", newline="")) as file:
+            data_list = json.load(file)
+        found = False"""
 
 
 if __name__ == '__main__':

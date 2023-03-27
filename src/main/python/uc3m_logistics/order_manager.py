@@ -172,7 +172,7 @@ class OrderManager:
                     raise OrderManagementException("ContactEmail invalido")
                 # Comprobamos si la extension tiene el formato correcto
                 email_aft_p = email[posicion_punto + 1:]
-                if len(email_aft_p) != 3:
+                if len(email_aft_p) > 3:
                     raise OrderManagementException("ContactEmail invalido")
                 for i in range(len(email_aft_p)):
                     if email_aft_p[i] not in caracteres_validos_ext:

@@ -135,6 +135,7 @@ class OrderManager:
 
     @staticmethod
     def validate_json(input_file):
+        print("vas")
         try:
             with open(input_file, mode ='r', encoding="UTF-8") as file:
                 datos = json.load(file)

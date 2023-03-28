@@ -111,13 +111,26 @@ class OrderManager:
         OrderManager.validate_address(address)
         OrderManager.validate_zip_code(zip_code)
         my_order = OrderRequest(product_id, order_type, address, phone, zip_code)
-        OrderManager.crear_fichero(product_id, order_type, address, phone, zip_code)
-        return my_order.order_id
+        order_id = my_order.order_id
+        OrderManager.crear_pedido(product_id, order_type, address, phone, zip_code, order_id)
+        OrderManager.almacenar_pedido(product_id, order_type, address, phone, zip_code, order_id)
+        return order_id
 
     @staticmethod
-    def crear_fichero(product_id, order_type, address, phone, zip_code):
+    def crear_pedido(product_id, order_type, address, phone, zip_code, order_id):
         order = {"product_id": product_id, "order_type": order_type, "address": address, "phone": phone,
-                 "zip_code": zip_code}
+                 "zip_code": zip_code, "order_id": order_id}
+        dir = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
+        file_store = dir + "pedido.json"
+        if os.path.isfile(file_store):
+            os.remove(file_store)
+        with open(file_store, mode="w", encoding="UTF-8") as file:
+            json.dump(order, file, indent=4)
+
+    @staticmethod
+    def almacenar_pedido(product_id, order_type, address, phone, zip_code, order_id):
+        order = {"product_id": product_id, "order_type": order_type, "address": address, "phone": phone,
+                 "zip_code": zip_code, "order_id": order_id}
         dir = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
         file_store = dir + "storage.json"
         if os.path.isfile(file_store) is False:
@@ -128,7 +141,7 @@ class OrderManager:
             with open(file_store, mode="r", encoding = "UTF-8") as file:
                 data_file = json.load(file)
                 for item in data_file:
-                    if item["product_id"] == order["product_id"] and item["order_type"] == order["order_type"] and item["address"] == order["address"] and item["phone"] == order["phone"] and item["zip_code"] == order["zip_code"] :
+                    if item["order_id"] == order["order_id"]:
                         raise OrderManagementException("Producto ya existente en el almacén.")
                 data_file.append(order)
             os.remove(file_store)
@@ -137,10 +150,10 @@ class OrderManager:
 
     @staticmethod
     def validate_json(input_file):
-        print("vas")
         try:
             with open(input_file, mode ='r', encoding="UTF-8") as file:
                 datos = json.load(file)
+                print(datos)
                 # Para comprobar si el formato de las claves es correcto
                 claves = list(datos.keys())
                 if claves != ["Order_id", "ContactEmail"]:
@@ -207,9 +220,32 @@ class OrderManager:
             raise OrderManagementException("JSON Decode Error - El archivo no tiene formato JSON") from ex
 
     @staticmethod
-    def send_product(input_file):
-        OrderManager.validate_json(input_file)
+    def comprobar_pedido(input_file, storage_file):
+        # Como ya se ha validado el fichero podemos abrirlo sin
+        # realizar comprobaciones del mismo
+        with open(input_file, mode ='r', encoding="UTF-8") as file:
+            datos = json.load(file)
+            order_id = datos["order_id"]
+        with open(storage_file, mode = 'r', encoding="UTF-8") as file:
+            storage = json.load(file)
+            encontrado = False
+            for pedido in storage:
+                if pedido["order_id"] == order_id:
+                    encontrado = True
+                    break
+            if not encontrado:
+                # Como el order_id se comprueba en validate_json(), sabemos que el order_id del
+                # input_file es correcto. Si de alguna forma se hubiera manipulado el order_id
+                # dentro del almacén, no se encontraría la coincidencia entre el del almacén
+                # y el del input_file
+                raise OrderManagementException("Pedido no encontrado u order_id manipulado")
 
+    @staticmethod
+    def send_product(input_file):
+        storage = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "storage.json"
+        OrderManager.validate_json(input_file)
+        OrderManager.comprobar_pedido(input_file, storage)
+        
         return 0
 
     @staticmethod

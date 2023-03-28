@@ -2,8 +2,10 @@
 import json
 import os
 from pathlib import Path
+from datetime import datetime
 from uc3m_logistics.order_request import OrderRequest
 from uc3m_logistics.order_management_exception import OrderManagementException
+from uc3m_logistics.order_shipping import OrderShipping
 
 class OrderManager:
     """Class for providing the methods for managing the orders"""
@@ -119,7 +121,7 @@ class OrderManager:
     @staticmethod
     def crear_pedido(product_id, order_type, address, phone, zip_code, order_id):
         order = {"product_id": product_id, "order_type": order_type, "address": address, "phone": phone,
-                 "zip_code": zip_code, "order_id": order_id}
+                 "zip_code": zip_code, "OrderID": order_id}
         dir = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
         file_store = dir + "pedido.json"
         if os.path.isfile(file_store):
@@ -130,7 +132,7 @@ class OrderManager:
     @staticmethod
     def almacenar_pedido(product_id, order_type, address, phone, zip_code, order_id):
         order = {"product_id": product_id, "order_type": order_type, "address": address, "phone": phone,
-                 "zip_code": zip_code, "order_id": order_id}
+                 "zip_code": zip_code, "OrderID": order_id}
         dir = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
         file_store = dir + "storage.json"
         if os.path.isfile(file_store) is False:
@@ -141,7 +143,7 @@ class OrderManager:
             with open(file_store, mode="r", encoding = "UTF-8") as file:
                 data_file = json.load(file)
                 for item in data_file:
-                    if item["order_id"] == order["order_id"]:
+                    if item["OrderID"] == order["OrderID"]:
                         raise OrderManagementException("Producto ya existente en el almacén.")
                 data_file.append(order)
             os.remove(file_store)
@@ -156,16 +158,16 @@ class OrderManager:
                 print(datos)
                 # Para comprobar si el formato de las claves es correcto
                 claves = list(datos.keys())
-                if claves != ["Order_id", "ContactEmail"]:
+                if claves != ["OrderID", "ContactEmail"]:
                     raise OrderManagementException("Estructura del fichero incorrecta")
                 # Para comprobar si el formato de order_id es correcto
-                order_id = datos["Order_id"]
+                order_id = datos["OrderID"]
                 if len(order_id) != 32:
-                    raise OrderManagementException("Order_id invalido")
+                    raise OrderManagementException("OrderID invalido")
                 caracteres_hex = "0123456789abcdef"
                 for i in range(len(order_id)):
                     if order_id[i] not in caracteres_hex:
-                        raise OrderManagementException("Order_id invalido")
+                        raise OrderManagementException("OrderID invalido")
                 # Para comprobar si el formato de ContactEmail es correcto
                 email = datos["ContactEmail"]
                 # Comprobamos si tiene @ y si el formato entre el inicio del mail
@@ -190,7 +192,7 @@ class OrderManager:
                     raise OrderManagementException("ContactEmail invalido")
                 # Comprobamos si tiene punto despues del arroba y si el formato entre
                 # el @ y el punto es correcto
-                email_aft_at = email[posicion_at + 1:]
+                # email_aft_at = email[posicion_at + 1:]
                 tiene_punto = False
                 posicion_punto = 0
                 for i in range(len(email)):
@@ -225,12 +227,12 @@ class OrderManager:
         # realizar comprobaciones del mismo
         with open(input_file, mode ='r', encoding="UTF-8") as file:
             datos = json.load(file)
-            order_id = datos["order_id"]
+            order_id = datos["OrderID"]
         with open(storage_file, mode = 'r', encoding="UTF-8") as file:
             storage = json.load(file)
             encontrado = False
             for pedido in storage:
-                if pedido["order_id"] == order_id:
+                if pedido["OrderID"] == order_id:
                     encontrado = True
                     break
             if not encontrado:
@@ -238,19 +240,90 @@ class OrderManager:
                 # input_file es correcto. Si de alguna forma se hubiera manipulado el order_id
                 # dentro del almacén, no se encontraría la coincidencia entre el del almacén
                 # y el del input_file
-                raise OrderManagementException("Pedido no encontrado u order_id manipulado")
+                raise OrderManagementException("Pedido no encontrado u OrderID manipulado")
+
+    @staticmethod
+    def almacenar_envio(tracking_code, delivery_day):
+        order = {"tracking_code": tracking_code, "delivery_day": delivery_day}
+        dir = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
+        file_store = dir + "shipping_storage.json"
+        if os.path.isfile(file_store) is False:
+            with open(file_store, mode="w", encoding="UTF-8") as file:
+                listorder = [order]
+                json.dump(listorder, file, indent=4)
+        else:
+            with open(file_store, mode="r", encoding="UTF-8") as file:
+                data_file = json.load(file)
+                for item in data_file:
+                    if item["tracking_code"] == order["tracking_code"]:
+                        raise OrderManagementException("Envío ya existente en el almacén.")
+                data_file.append(order)
+            os.remove(file_store)
+            with open(file_store, mode="w", encoding="UTF-8") as file:
+                json.dump(data_file, file, indent=4)
 
     @staticmethod
     def send_product(input_file):
         storage = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "storage.json"
+        pedido = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "pedido.json"
         OrderManager.validate_json(input_file)
         OrderManager.comprobar_pedido(input_file, storage)
-        
-        return 0
+        # Para generar order_shipping
+        with open(input_file, mode ='r', encoding="UTF-8") as file:
+            datos = json.load(file)
+            order_id = datos["OrderID"]
+            delivery_email = datos["ContactEmail"]
+        with open(pedido, mode ='r', encoding="UTF-8") as file:
+            datos = json.load(file)
+            product_id = datos["product_id"]
+            order_type = datos["order_type"]
+        my_order_shipping = OrderShipping(product_id, order_id, delivery_email, order_type)
+        tracking_code = my_order_shipping.tracking_code
+        delivery_day = my_order_shipping.delivery_day
+        OrderManager.almacenar_envio(tracking_code, delivery_day)
+        return tracking_code
+
+    @staticmethod
+    def comprobar_envio(tracking_number, storage):
+        try:
+            # Primero comprobamos que existe el tracking_number
+            with open(storage, mode='r', encoding="UTF-8") as file:
+                datos = json.load(file)
+                encontrado = False
+                for envio in datos:
+                    if envio["tracking_number"] == tracking_number:
+                        encontrado = True
+                        break
+                if not encontrado:
+                    # No se ha encontrado el tracking_number (es decir, el envio) en el almacén
+                    raise OrderManagementException("Envío no encontrado en el almacén")
+                # Ahora comprobamos que la fecha de envío coincide con la fecha actual
+                delivery_day = envio["delivery_day"]
+                fecha_actual = datetime.utcnow()
+                fecha_actual = datetime.timestamp(fecha_actual)
+                # (Creo que hay que restar las horas para saber si el dia de envio es el mismo al estar en timestamp)
+        except FileNotFoundError as ex:
+            raise OrderManagementException("El almacén esta vacío") from ex
+
+    @staticmethod
+    def almacenar_entrega(tracking_number, delivery_day):
+        return
 
     @staticmethod
     def deliver_product(tracking_number):
-        return 0
+        # Comprobamos que el tracking_number tiene un formato correcto
+        caracteres_hex = "0123456789abcdef"
+        if type(tracking_number) is not str:
+            raise OrderManagementException("Tracking_number no es un string")
+        if len(tracking_number) != 64:
+            raise OrderManagementException("Tracking_number no tiene la longitud adecuada")
+        for i in range(len(tracking_number)):
+            if tracking_number[i] not in caracteres_hex:
+                raise OrderManagementException("Tracking_number contiene caracteres no hexadecimales")
+        # Comprobamos mediante una funcion si el envío está en el almacen y la fecha es correcta y si es asi
+        # se devolvera la fecha de entrega
+        storage = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "shipping_storage.json"
+        delivery_day = OrderManager.comprobar_envio(tracking_number, storage)
 
 
 

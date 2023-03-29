@@ -262,7 +262,6 @@ class OrderManager:
     @staticmethod
     def send_product(input_file):
         storage = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "storage.json"
-        pedido = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "pedido.json"
         OrderManager.validate_json(input_file)
         datos = OrderManager.comprobar_pedido(input_file, storage)
         # Para generar order_shipping

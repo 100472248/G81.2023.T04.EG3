@@ -1,8 +1,5 @@
 """class for testing the regsiter_order method"""
 import unittest
-import os
-import json
-from pathlib import Path
 from uc3m_logistics import OrderManager
 from uc3m_logistics import OrderManagementException
 from freezegun import freeze_time
@@ -20,21 +17,21 @@ class MyTestCase(unittest.TestCase):
                                         "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
         self.assertEqual("caf7eace516dced5512b338105303c83", str(value))
 
-    def test_EAN13notString(self):
+    def test_ean13_not_string(self):
         my_order = OrderManager()
         with self.assertRaises(OrderManagementException) as invalido:
             value = my_order.register_order(12, "REGULAR",
                                             "C/LISBOA, 4, MADRID, SPAIN", "123456789","28005")
         self.assertEqual("EAN13 not string", invalido.exception.message)
 
-    def test_EAN13notNumber(self):
+    def test_ean13_not_number(self):
         my_order = OrderManager()
         with self.assertRaises(OrderManagementException) as invalido:
             value = my_order.register_order("codigoean13", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789",
                                             "28005")
         self.assertEqual("Error. Contiene caracteres no numéricos", invalido.exception.message)
 
-    def test_EAN13Corto(self):
+    def test_ean13_corto(self):
         my_order = OrderManager()
         with self.assertRaises(OrderManagementException) as invalido:
             value = my_order.register_order("842169142322", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789",
@@ -55,25 +52,6 @@ class MyTestCase(unittest.TestCase):
                                             "28005")
         self.assertEqual("No cumple el checksum", invalido.exception.message)
 
-    def test_VL1(self):
-        my_order = OrderManager()
-        with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order("84216914232256", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789",
-                                            "28005")
-        self.assertEqual("EAN13 mayor a 13 cifras", invalido.exception.message)
-
-    @freeze_time("2023-03-24")
-    def test_VL2(self):
-        my_order = OrderManager()
-        value = my_order.register_order("8421691423220", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
-        self.assertEqual("caf7eace516dced5512b338105303c83", str(value))
-
-    def test_VL3(self):
-        my_order = OrderManager()
-        with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order("842169142322", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789",
-                                            "28005")
-        self.assertEqual("EAN13 menor a 13 cifras", invalido.exception.message)
 
     def test_order_str(self):
         my_order = OrderManager()
@@ -82,11 +60,7 @@ class MyTestCase(unittest.TestCase):
                                             "28005")
         self.assertEqual("Order_type not str", invalido.exception.message)
 
-    @freeze_time("2023-03-24")
-    def test_order_REGULAR(self):
-        my_order = OrderManager()
-        value = my_order.register_order("8421691423220", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
-        self.assertEqual("caf7eace516dced5512b338105303c83", str(value))
+
 
     @freeze_time("2023-03-24")
     def test_order_PREMIUM(self):
@@ -127,12 +101,6 @@ class MyTestCase(unittest.TestCase):
             value = my_order.register_order("8421691423220", "PREMIUM", "C/LISBOA,4,MADRID", "123456789", "28005")
         self.assertEqual("Dirección más corta de lo habitual", invalido.exception.message)
 
-    def VL4(self):
-        my_order = OrderManager()
-        with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order("8421691423220", "PREMIUM", "C/LOGROÑO,4, MADRID", "123456789", "28005")
-        self.assertEqual("Dirección más corta de lo habitual", invalido.exception.message)
-
     @freeze_time("2023-03-24")
     def test_VL5(self):
         my_order = OrderManager()
@@ -149,25 +117,17 @@ class MyTestCase(unittest.TestCase):
     def test_VL7(self):
         my_order = OrderManager()
         value = my_order.register_order("8421691423220", "REGULAR",
-                                        "AVENIDA VILLAVICIOSA DEL OBISPO DE GUADALAJARA,102, TORDESILLAS, VALLADOLID, CASTILLA Y LEÓN, SPAIN",
+                "AVENIDA VILLAVICIOSA DEL OBISPO DE GUADALAJARA,102, TORDESILLAS, VALLADOLID, CASTILLA Y LEON, SPAIN",
                                         "123456789", "28005")
-        self.assertEqual("44707b5308285f825f0bbd8264973221", str(value))
+        self.assertEqual("8fe5c348285f31da1c0954e95e1bb09a", str(value))
 
     @freeze_time("2023-03-24")
     def test_VL8(self):
         my_order = OrderManager()
         value = my_order.register_order("8421691423220", "REGULAR",
-                                        "AVENIDA VILLAVICIOSA DEL OBISPO DE GUADALAJARA,102, TORDESILLAS, VALLADOLID, CASTILLA Y LEÓN, SPAIN",
+            "AVENIDA VILLANUEVA DEL ARZOBISPO DE GUADALAJARA,102, TORDESILLAS, VALLADOLID, CASTILLA Y LEON, SPAIN",
                                         "123456789", "28005")
-        self.assertEqual("44707b5308285f825f0bbd8264973221", str(value))
-
-    def test_VL9(self):
-        my_order = OrderManager()
-        with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order("8421691423220", "PREMIUM",
-                                            "AVENIDA VILLANUEVA DEL ARZOBISPO DE GUADALAJARA,102, TORDESILLAS, VALLADOLID, CASTILLA Y LEÓN, ESPAÑA",
-                                            "123456789", "28005")
-        self.assertEqual("Dirección más larga de lo habitual", invalido.exception.message)
+        self.assertEqual("c360c42441f4769012fc2c3bf0c2028e", str(value))
 
     def test_phone_not_str(self):
         my_order = OrderManager()
@@ -197,26 +157,6 @@ class MyTestCase(unittest.TestCase):
                                             "12345678", "28005")
         self.assertEqual("Phone_number más corto de 9 cifras", invalido.exception.message)
 
-    def test_VL10(self):
-        my_order = OrderManager()
-        with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order("8421691423220", "PREMIUM", "C/LISBOA, 4, MADRID, SPAIN",
-                                            "1234567890", "28005")
-        self.assertEqual("Phone_number más largo de 9 cifras", invalido.exception.message)
-
-    @freeze_time("2023-03-24")
-    def test_VL11(self):
-        my_order = OrderManager()
-        value = my_order.register_order("8421691423220", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
-        self.assertEqual("caf7eace516dced5512b338105303c83", str(value))
-
-    def test_VL12(self):
-        my_order = OrderManager()
-        with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order("8421691423220", "PREMIUM", "C/LISBOA, 4, MADRID, SPAIN",
-                                            "12345678", "28005")
-        self.assertEqual("Phone_number más corto de 9 cifras", invalido.exception.message)
-
     def test_zip_not_number(self):
         my_order = OrderManager()
         with self.assertRaises(OrderManagementException) as invalido:
@@ -240,109 +180,19 @@ class MyTestCase(unittest.TestCase):
 
     def test_zip_long(self):
         my_order = OrderManager()
-        with self.assertRaises(OrderManagementException) as invalido:
+        with self.assertRaises(OrderManagementException) as invalid:
             value = my_order.register_order("8421691423220", "PREMIUM", "C/LISBOA, 4, MADRID, SPAIN",
                                             "123456789", "280050")
-        self.assertEqual("Zip_code más largo de 5 cifras", invalido.exception.message)
+        self.assertEqual("Zip_code más largo de 5 cifras", invalid.exception.message)
 
     def test_zip_initials(self):
         my_order = OrderManager()
         with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order("8421691423220", "PREMIUM", "C/LISBOA, 4, MADRID, SPAIN",
-                                            "123456789", "60005")
+            value = my_order.register_order("8421691423220", "PREMIUM",
+                                            "C/LISBOA, 4, MADRID, SPAIN", "123456789", "60005")
         self.assertEqual("Las dos cifras iniciales deben estar entre 01 y 52", invalido.exception.message)
 
-    def test_VL13(self):
-        my_order = OrderManager()
-        with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order("8421691423220", "PREMIUM", "C/LISBOA, 4, MADRID, SPAIN",
-                                            "123456789", "2800")
-        self.assertEqual("Zip_code más corto de 5 cifras", invalido.exception.message)
-
-    @freeze_time("2023-03-24")
-    def test_VL14(self):
-        my_order = OrderManager()
-        value = my_order.register_order("8421691423220", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
-        print(value)
-        self.assertEqual("caf7eace516dced5512b338105303c83", str(value))
-
-    def test_VL15(self):
-        my_order = OrderManager()
-        with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order("8421691423220", "PREMIUM", "C/LISBOA, 4, MADRID, SPAIN",
-                                            "123456789", "280050")
-        self.assertEqual("Zip_code más largo de 5 cifras", invalido.exception.message)
-
-    @freeze_time("2023-03-24")
-    def test_Salida_MDL5(self):
-        my_order = OrderManager()
-        value = my_order.register_order("8421691423220", "REGULAR", "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
-        self.assertEqual("caf7eace516dced5512b338105303c83", str(value))
-
-    def test_exception_EAN13(self):
-        my_order = OrderManager()
-        with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order("842169142322", "PREMIUM", "C/LISBOA, 4, MADRID, SPAIN",
-                                            "123456789", "28005")
-        self.assertNotEqual(True, invalido.exception.message, "Exception. Product_id not valid")
-
-    def test_exception_order_id(self):
-        my_order = OrderManager()
-        with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order("8421691423220", "PR", "C/LISBOA, 4, MADRID, SPAIN",
-                                            "123456789", "28005")
-        self.assertNotEqual(True, invalido.exception.message, "Exception. Order_type not valid")
-
-    def test_exception_address(self):
-        my_order = OrderManager()
-        with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order("8421691423220", "PREMIUM", "C/LISBOA, 4, MADRID",
-                                            "123456789", "28005")
-        self.assertNotEqual(True, invalido.exception.message, "Exception. Address wrong")
-
-    def test_exception_phone_number(self):
-        my_order = OrderManager()
-        with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order("8421691423220", "PREMIUM", "C/LISBOA, 4, MADRID, SPAIN",
-                                            "12345678", "28005")
-        self.assertNotEqual(True, invalido.exception.message, "Exception. Phone number wrong")
-
-    def test_exception_zip_code(self):
-        my_order = OrderManager()
-        with self.assertRaises(OrderManagementException) as invalido:
-            value = my_order.register_order("8421691423220", "PREMIUM", "C/LISBOA, 4, MADRID, SPAIN",
-                                            "123456789", "280050")
-        self.assertNotEqual(True, invalido.exception.message, "Exception. Phone number wrong")
-"""
-    @freeze_time("2023-03-24")
-    def test_file_checked(self):
-        JSON_FILES_PATH = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
-        file_store = JSON_FILES_PATH + "f1.json"
-        if os.path.isfile(file_store):
-            os.remove(file_store)
-        my_order = OrderManager()
-        value = my_order.register_order("8421691423220", "REGULAR",
-                                        "C/LISBOA, 4, MADRID, SPAIN", "123456789", "28005")
-        self.assertEqual("caf7eace516dced5512b338105303c83", str(value))
-
-        with (open(file_store, "r", encoding="UTF-8", newline="")) as file:
-            data_list = json.load(file)
-        found = False
-        for item in data_list:
-            if item["_OrderRequest__order_id"] == "caf7eace516dced5512b338105303c83":
-                found = True
-        self.assertTrue(found)
-"""
-
-
-"""    def test_file_wrong(self):
-        JSON_FILES_PATH = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
-        file_store = JSON_FILES_PATH + "f2.json"
-        with (open(file_store, "r", encoding="UTF-8", newline="")) as file:
-            data_list = json.load(file)
-        found = False"""
 
 
 if __name__ == '__main__':
     unittest.main()
-

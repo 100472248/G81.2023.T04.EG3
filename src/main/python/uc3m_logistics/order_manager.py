@@ -278,18 +278,18 @@ class OrderManager:
         return tracking_code
 
     @staticmethod
-    def comprobar_envio(tracking_number, storage):
+    def comprobar_envio(tracking_code, storage):
         try:
-            # Primero comprobamos que existe el tracking_number
+            # Primero comprobamos que existe el tracking_code
             with open(storage, mode='r', encoding="UTF-8") as file:
                 datos = json.load(file)
                 encontrado = False
                 for envio in datos:
-                    if envio["tracking_number"] == tracking_number:
+                    if envio["tracking_code"] == tracking_code:
                         encontrado = True
                         break
                 if not encontrado:
-                    # No se ha encontrado el tracking_number (es decir, el envio) en el almacén
+                    # No se ha encontrado el tracking_code (es decir, el envio) en el almacén
                     raise OrderManagementException("Envío no encontrado en el almacén")
                 # Ahora comprobamos que la fecha de envío coincide con la fecha actual
                 delivery_day = envio["delivery_day"]
@@ -299,13 +299,12 @@ class OrderManager:
                     # devolvemos el deliver_day timestamp
                     return delivery_day
                 raise OrderManagementException("La fecha de entrega no es correcta")
-
         except FileNotFoundError as ex:
             raise OrderManagementException("El almacén esta vacío") from ex
 
     @staticmethod
-    def almacenar_entrega(tracking_number, delivery_day):
-        order = {"tracking_number": tracking_number, "delivery_day": delivery_day}
+    def almacenar_entrega(tracking_code, delivery_day):
+        order = {"tracking_code": tracking_code, "delivery_day": delivery_day}
         dir = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
         file_store = dir + "delivery_storage.json"
         if os.path.isfile(file_store) is False:
@@ -316,7 +315,7 @@ class OrderManager:
             with open(file_store, mode="r", encoding="UTF-8") as file:
                 data_file = json.load(file)
                 for item in data_file:
-                    if item["tracking_number"] == order["tracking_number"]:
+                    if item["tracking_code"] == order["tracking_code"]:
                         raise OrderManagementException("Entrega ya existente en el almacén.")
                 data_file.append(order)
             os.remove(file_store)
@@ -324,21 +323,21 @@ class OrderManager:
                 json.dump(data_file, file, indent=4)
 
     @staticmethod
-    def deliver_product(tracking_number):
-        # Comprobamos que el tracking_number tiene un formato correcto
+    def deliver_product(tracking_code):
+        # Comprobamos que el tracking_code tiene un formato correcto
         caracteres_hex = "0123456789abcdef"
-        if type(tracking_number) is not str:
-            raise OrderManagementException("Tracking_number no es un string")
-        if len(tracking_number) != 64:
-            raise OrderManagementException("Tracking_number no tiene la longitud adecuada")
-        for i in range(len(tracking_number)):
-            if tracking_number[i] not in caracteres_hex:
-                raise OrderManagementException("Tracking_number contiene caracteres no hexadecimales")
+        if type(tracking_code) is not str:
+            raise OrderManagementException("Tracking_code no es un string")
+        if len(tracking_code) != 64:
+            raise OrderManagementException("Tracking_code no tiene la longitud adecuada")
+        for i in range(len(tracking_code)):
+            if tracking_code[i] not in caracteres_hex:
+                raise OrderManagementException("Tracking_code contiene caracteres no hexadecimales")
         # Comprobamos mediante una funcion si el envío está en el almacen y la fecha es correcta y si es asi
         # se devolvera la fecha de entrega
         storage = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "shipping_storage.json"
-        delivery_day = OrderManager.comprobar_envio(tracking_number, storage)
-        OrderManager.almacenar_entrega(tracking_number, delivery_day)
+        delivery_day = OrderManager.comprobar_envio(tracking_code, storage)
+        OrderManager.almacenar_entrega(tracking_code, delivery_day)
 
 
 

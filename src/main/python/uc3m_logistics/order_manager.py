@@ -2,7 +2,7 @@
 import json
 import os
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, date
 from uc3m_logistics.order_request import OrderRequest
 from uc3m_logistics.order_management_exception import OrderManagementException
 from uc3m_logistics.order_shipping import OrderShipping
@@ -222,7 +222,7 @@ class OrderManager:
             raise OrderManagementException("JSON Decode Error - El archivo no tiene formato JSON") from ex
 
     @staticmethod
-    def comprobar_pedido(input_file, storage_file):
+    def comprobar_pedido(input_file, storage_file) -> list:
         # Como ya se ha validado el fichero podemos abrirlo sin
         # realizar comprobaciones del mismo
         with open(input_file, mode ='r', encoding="UTF-8") as file:
@@ -235,12 +235,9 @@ class OrderManager:
                 if pedido["OrderID"] == order_id:
                     encontrado = True
                     break
-            if not encontrado:
-                # Como el order_id se comprueba en validate_json(), sabemos que el order_id del
-                # input_file es correcto. Si de alguna forma se hubiera manipulado el order_id
-                # dentro del almacén, no se encontraría la coincidencia entre el del almacén
-                # y el del input_file
-                raise OrderManagementException("Pedido no encontrado u OrderID manipulado")
+            if encontrado:
+                return [pedido["product_id"], pedido["order_type"]]
+            raise OrderManagementException("Pedido no encontrado u OrderID manipulado")
 
     @staticmethod
     def almacenar_envio(tracking_code, delivery_day):
@@ -267,16 +264,14 @@ class OrderManager:
         storage = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "storage.json"
         pedido = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "pedido.json"
         OrderManager.validate_json(input_file)
-        OrderManager.comprobar_pedido(input_file, storage)
+        datos = OrderManager.comprobar_pedido(input_file, storage)
         # Para generar order_shipping
         with open(input_file, mode ='r', encoding="UTF-8") as file:
             datos = json.load(file)
             order_id = datos["OrderID"]
             delivery_email = datos["ContactEmail"]
-        with open(pedido, mode ='r', encoding="UTF-8") as file:
-            datos = json.load(file)
-            product_id = datos["product_id"]
-            order_type = datos["order_type"]
+        product_id = datos[0]
+        order_type = datos[1]
         my_order_shipping = OrderShipping(product_id, order_id, delivery_email, order_type)
         tracking_code = my_order_shipping.tracking_code
         delivery_day = my_order_shipping.delivery_day
@@ -299,15 +294,35 @@ class OrderManager:
                     raise OrderManagementException("Envío no encontrado en el almacén")
                 # Ahora comprobamos que la fecha de envío coincide con la fecha actual
                 delivery_day = envio["delivery_day"]
-                fecha_actual = datetime.utcnow()
-                fecha_actual = datetime.timestamp(fecha_actual)
-                # (Creo que hay que restar las horas para saber si el dia de envio es el mismo al estar en timestamp)
+                delivery_day_date = datetime.fromtimestamp(delivery_day).date()
+                fecha_actual = date.today()
+                if fecha_actual == delivery_day_date:
+                    # devolvemos el deliver_day timestamp
+                    return delivery_day
+                raise OrderManagementException("La fecha de entrega no es correcta")
+
         except FileNotFoundError as ex:
             raise OrderManagementException("El almacén esta vacío") from ex
 
     @staticmethod
     def almacenar_entrega(tracking_number, delivery_day):
-        return
+        order = {"tracking_number": tracking_number, "delivery_day": delivery_day}
+        dir = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
+        file_store = dir + "delivery_storage.json"
+        if os.path.isfile(file_store) is False:
+            with open(file_store, mode="w", encoding="UTF-8") as file:
+                listorder = [order]
+                json.dump(listorder, file, indent=4)
+        else:
+            with open(file_store, mode="r", encoding="UTF-8") as file:
+                data_file = json.load(file)
+                for item in data_file:
+                    if item["tracking_number"] == order["tracking_number"]:
+                        raise OrderManagementException("Entrega ya existente en el almacén.")
+                data_file.append(order)
+            os.remove(file_store)
+            with open(file_store, mode="w", encoding="UTF-8") as file:
+                json.dump(data_file, file, indent=4)
 
     @staticmethod
     def deliver_product(tracking_number):
@@ -324,6 +339,7 @@ class OrderManager:
         # se devolvera la fecha de entrega
         storage = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "shipping_storage.json"
         delivery_day = OrderManager.comprobar_envio(tracking_number, storage)
+        OrderManager.almacenar_entrega(tracking_number, delivery_day)
 
 
 

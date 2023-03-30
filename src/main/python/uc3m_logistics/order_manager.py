@@ -334,7 +334,7 @@ class OrderManager:
             raise OrderManagementException("Tracking_code no tiene la longitud adecuada")
         for i in range(len(tracking_code)):
             if tracking_code[i] not in caracteres_hex:
-                raise OrderManagementException("Tracking_code contiene caracteres no hexadecimales")
+                raise OrderManagementException("Tracking_code no es un hex")
         # Comprobamos mediante una funcion si el envío está en el almacen y la fecha es correcta y si es asi
         # se devolvera la fecha de entrega
         storage = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "shipping_storage.json"

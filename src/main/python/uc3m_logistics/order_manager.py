@@ -316,9 +316,6 @@ class OrderManager:
         else:
             with open(file_store, mode="r", encoding="UTF-8") as file:
                 data_file = json.load(file)
-                for item in data_file:
-                    if item["tracking_code"] == order["tracking_code"]:
-                        raise OrderManagementException("Entrega ya existente en el almacén.")
                 data_file.append(order)
             os.remove(file_store)
             with open(file_store, mode="w", encoding="UTF-8") as file:
@@ -340,6 +337,7 @@ class OrderManager:
         storage = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "shipping_storage.json"
         delivery_day = OrderManager.comprobar_envio(tracking_code, storage)
         OrderManager.almacenar_entrega(tracking_code, delivery_day)
+        return True
 
 
 

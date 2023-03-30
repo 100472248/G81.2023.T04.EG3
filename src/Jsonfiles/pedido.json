@@ -1,8 +1,8 @@
 {
     "product_id": "8421691423220",
-    "order_type": "REGULAR",
-    "address": "AVENIDA VILLANUEVA DEL ARZOBISPO DE GUADALAJARA,102, TORDESILLAS, VALLADOLID, CASTILLA Y LEON, SPAIN",
+    "order_type": "PREMIUM",
+    "address": "C/LISBOA, 4, MADRID, SPAIN",
     "phone": "123456789",
     "zip_code": "28005",
-    "OrderID": "c360c42441f4769012fc2c3bf0c2028e"
+    "OrderID": "5eb1585d426fdc862df27075c9d34d93"
 }

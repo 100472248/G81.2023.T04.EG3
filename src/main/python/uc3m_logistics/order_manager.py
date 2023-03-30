@@ -47,7 +47,8 @@ class OrderManager:
             num = 10 - modulo
         if num == int(ean13_code[12]):
             return True
-        raise OrderManagementException("No cumple el checksum")
+        else:
+            raise OrderManagementException("No cumple el checksum")
 
     @staticmethod
     def validate_address(address):
@@ -190,17 +191,17 @@ class OrderManager:
                 caracteres_validos_ext = "qwertyuiopasdfghjklñzxcvbnm"
                 tiene_at = False
                 posicion_at = 0
-                for variable in range(0, len(email)):
-                    if email[variable] == "@":
+                for i in range(len(email)):
+                    if email[i] == "@":
                         tiene_at = True
-                        posicion_at = variable
+                        posicion_at = i
                         break
                 if tiene_at:
                     email_bef_at = email[0:posicion_at]
                     if len(email_bef_at) == 0:
                         raise OrderManagementException("ContactEmail invalido")
-                    for validos in email_bef_at:
-                        if validos not in caracteres_validos:
+                    for i in range(len(email_bef_at)):
+                        if email_bef_at[i] not in caracteres_validos:
                             raise OrderManagementException("ContactEmail invalido")
                 else:
                     raise OrderManagementException("ContactEmail invalido")
@@ -209,17 +210,17 @@ class OrderManager:
                 # email_aft_at = email[posicion_at + 1:]
                 tiene_punto = False
                 posicion_punto = 0
-                for variable in range(0, len(email)):
-                    if email[variable] == ".":
-                        posicion_punto = variable
+                for i in range(len(email)):
+                    if email[i] == ".":
+                        posicion_punto = i
                         tiene_punto = True
                         break
                 if tiene_punto:
                     email_bef_p = email[posicion_at + 1:posicion_punto]
                     if len(email_bef_p) == 0:
                         raise OrderManagementException("ContactEmail invalido")
-                    for validos in email_bef_p:
-                        if validos not in caracteres_validos:
+                    for i in range(len(email_bef_p)):
+                        if email_bef_p[i] not in caracteres_validos:
                             raise OrderManagementException("ContactEmail invalido")
                 else:
                     raise OrderManagementException("ContactEmail invalido")
@@ -284,7 +285,6 @@ class OrderManager:
         json_path = "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
         storage = str(Path.home()) + json_path + "storage.json"
         OrderManager.validate_json(input_file)
-        OrderManager.comprobar_pedido(input_file, storage)
         pedido = OrderManager.comprobar_pedido(input_file, storage)
         # Para generar order_shipping
         with open(input_file, mode='r', encoding="UTF-8") as file:
@@ -321,7 +321,6 @@ class OrderManager:
                     # devolvemos el deliver_day timestamp
                     return delivery_day
                 raise OrderManagementException("La fecha de entrega no es correcta")
-
         except FileNotFoundError as ex:
             raise OrderManagementException("El almacén esta vacío") from ex
 
@@ -337,9 +336,6 @@ class OrderManager:
         else:
             with open(file_store, mode="r", encoding="UTF-8") as file:
                 data_file = json.load(file)
-                for item in data_file:
-                    if item["tracking_code"] == order["tracking_code"]:
-                        raise OrderManagementException("Entrega ya existente en el almacén.")
                 data_file.append(order)
             os.remove(file_store)
             with open(file_store, mode="w", encoding="UTF-8") as file:
@@ -361,3 +357,4 @@ class OrderManager:
         storage = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "shipping_storage.json"
         delivery_day = OrderManager.comprobar_envio(tracking_code, storage)
         OrderManager.almacenar_entrega(tracking_code, delivery_day)
+        return True

@@ -162,6 +162,8 @@ class OrderManager:
                     raise OrderManagementException("Estructura del fichero incorrecta")
                 # Para comprobar si el formato de order_id es correcto
                 order_id = datos["OrderID"]
+                if type(order_id) is not str:
+                    raise OrderManagementException("OrderID invalido")
                 if len(order_id) != 32:
                     raise OrderManagementException("OrderID invalido")
                 caracteres_hex = "0123456789abcdef"
@@ -263,14 +265,14 @@ class OrderManager:
     def send_product(input_file):
         storage = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "storage.json"
         OrderManager.validate_json(input_file)
-        datos = OrderManager.comprobar_pedido(input_file, storage)
+        pedido = OrderManager.comprobar_pedido(input_file, storage)
         # Para generar order_shipping
         with open(input_file, mode ='r', encoding="UTF-8") as file:
             datos = json.load(file)
             order_id = datos["OrderID"]
             delivery_email = datos["ContactEmail"]
-        product_id = datos[0]
-        order_type = datos[1]
+        product_id = pedido[0]
+        order_type = pedido[1]
         my_order_shipping = OrderShipping(product_id, order_id, delivery_email, order_type)
         tracking_code = my_order_shipping.tracking_code
         delivery_day = my_order_shipping.delivery_day

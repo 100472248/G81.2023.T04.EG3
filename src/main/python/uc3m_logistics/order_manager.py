@@ -18,8 +18,8 @@ class OrderManager:
         if type(ean13_code) is not str:
             raise OrderManagementException("EAN13 not string")
         lista = "0123456789"
-        for n in range(len(ean13_code)):
-            if ean13_code[n] not in lista:
+        for letter in ean13_code:
+            if letter not in lista:
                 raise OrderManagementException("Error. Contiene caracteres no numéricos")
         # Si la longitud del código no es 13, entonces no es de tipo EAN13
         if len(ean13_code) > 13:
@@ -47,11 +47,11 @@ class OrderManager:
             num = 10 - modulo
         if num == int(ean13_code[12]):
             return True
-        else:
-            raise OrderManagementException("No cumple el checksum")
+        raise OrderManagementException("No cumple el checksum")
 
     @staticmethod
     def validate_address(address):
+        """..."""
         if type(address) is not str:
             raise OrderManagementException("Address not string")
         if len(address) > 100:
@@ -59,8 +59,8 @@ class OrderManager:
         if len(address) < 20:
             raise OrderManagementException("Dirección más corta de lo habitual")
         num_espacios = 0
-        for n in range(0, len(address)):
-            if address[n] == " ":
+        for space in address:
+            if space == " ":
                 num_espacios += 1
         if num_espacios < 1:
             raise OrderManagementException("Insuficientes espacios")
@@ -68,11 +68,12 @@ class OrderManager:
 
     @staticmethod
     def validate_phone_number(phone_number):
+        """..."""
         if type(phone_number) is not str:
             raise OrderManagementException("Phone_number not str")
         lista = "0123456789"
-        for n in range(len(phone_number)):
-            if phone_number[n] not in lista:
+        for number in phone_number:
+            if number not in lista:
                 raise OrderManagementException("Error. Contiene caracteres no numéricos")
         if len(phone_number) < 9:
             raise OrderManagementException("Phone_number más corto de 9 cifras")
@@ -82,6 +83,7 @@ class OrderManager:
 
     @staticmethod
     def validate_order_type(order_type):
+        """..."""
         if type(order_type) is not str:
             raise OrderManagementException("Order_type not str")
         if order_type not in ["REGULAR", "PREMIUM"]:
@@ -90,11 +92,12 @@ class OrderManager:
 
     @staticmethod
     def validate_zip_code(zip_code):
+        """..."""
         if type(zip_code) is not str:
             raise OrderManagementException("Zip_code not str")
         lista = "0123456789"
-        for n in range(len(zip_code)):
-            if zip_code[n] not in lista:
+        for code in zip_code:
+            if code not in lista:
                 raise OrderManagementException("Error. Contiene caracteres no numéricos")
         if len(zip_code) < 5:
             raise OrderManagementException("Zip_code más corto de 5 cifras")
@@ -107,6 +110,7 @@ class OrderManager:
 
     @staticmethod
     def register_order(product_id, order_type, address, phone, zip_code):
+        """..."""
         OrderManager.validate_ean13(product_id)
         OrderManager.validate_order_type(order_type)
         OrderManager.validate_phone_number(phone)
@@ -120,10 +124,12 @@ class OrderManager:
 
     @staticmethod
     def crear_pedido(product_id, order_type, address, phone, zip_code, order_id):
-        order = {"product_id": product_id, "order_type": order_type, "address": address, "phone": phone,
+        """..."""
+        order = {"product_id": product_id, "order_type": order_type,
+                 "address": address, "phone": phone,
                  "zip_code": zip_code, "OrderID": order_id}
-        dir = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
-        file_store = dir + "pedido.json"
+        direction = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
+        file_store = direction + "pedido.json"
         if os.path.isfile(file_store):
             os.remove(file_store)
         with open(file_store, mode="w", encoding="UTF-8") as file:
@@ -131,29 +137,35 @@ class OrderManager:
 
     @staticmethod
     def almacenar_pedido(product_id, order_type, address, phone, zip_code, order_id):
-        order = {"product_id": product_id, "order_type": order_type, "address": address, "phone": phone,
-                 "zip_code": zip_code, "OrderID": order_id}
-        dir = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
-        file_store = dir + "storage.json"
+        """..."""
+        order = {"product_id": product_id,
+                 "order_type": order_type,
+                 "address": address,
+                 "phone": phone,
+                 "zip_code": zip_code,
+                 "OrderID": order_id}
+        direction = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
+        file_store = direction + "storage.json"
         if os.path.isfile(file_store) is False:
             with open(file_store, mode="w", encoding="UTF-8") as file:
                 listorder = [order]
                 json.dump(listorder, file, indent=4)
         else:
-            with open(file_store, mode="r", encoding = "UTF-8") as file:
+            with open(file_store, mode="r", encoding="UTF-8") as file:
                 data_file = json.load(file)
                 for item in data_file:
                     if item["OrderID"] == order["OrderID"]:
                         raise OrderManagementException("Producto ya existente en el almacén.")
                 data_file.append(order)
             os.remove(file_store)
-            with open(file_store, mode="w", encoding = "UTF-8") as file:
+            with open(file_store, mode="w", encoding="UTF-8") as file:
                 json.dump(data_file, file, indent=4)
 
     @staticmethod
     def validate_json(input_file):
+        """..."""
         try:
-            with open(input_file, mode ='r', encoding="UTF-8") as file:
+            with open(input_file, mode='r', encoding="UTF-8") as file:
                 datos = json.load(file)
                 print(datos)
                 # Para comprobar si el formato de las claves es correcto
@@ -167,8 +179,8 @@ class OrderManager:
                 if len(order_id) != 32:
                     raise OrderManagementException("OrderID invalido")
                 caracteres_hex = "0123456789abcdef"
-                for i in range(len(order_id)):
-                    if order_id[i] not in caracteres_hex:
+                for iden in order_id:
+                    if iden not in caracteres_hex:
                         raise OrderManagementException("OrderID invalido")
                 # Para comprobar si el formato de ContactEmail es correcto
                 email = datos["ContactEmail"]
@@ -178,17 +190,17 @@ class OrderManager:
                 caracteres_validos_ext = "qwertyuiopasdfghjklñzxcvbnm"
                 tiene_at = False
                 posicion_at = 0
-                for i in range(len(email)):
-                    if email[i] == "@":
+                for variable in range(0, len(email)):
+                    if email[variable] == "@":
                         tiene_at = True
-                        posicion_at = i
+                        posicion_at = variable
                         break
                 if tiene_at:
                     email_bef_at = email[0:posicion_at]
                     if len(email_bef_at) == 0:
                         raise OrderManagementException("ContactEmail invalido")
-                    for i in range(len(email_bef_at)):
-                        if email_bef_at[i] not in caracteres_validos:
+                    for validos in email_bef_at:
+                        if validos not in caracteres_validos:
                             raise OrderManagementException("ContactEmail invalido")
                 else:
                     raise OrderManagementException("ContactEmail invalido")
@@ -197,17 +209,17 @@ class OrderManager:
                 # email_aft_at = email[posicion_at + 1:]
                 tiene_punto = False
                 posicion_punto = 0
-                for i in range(len(email)):
-                    if email[i] == ".":
-                        posicion_punto = i
+                for variable in range(0, len(email)):
+                    if email[variable] == ".":
+                        posicion_punto = variable
                         tiene_punto = True
                         break
                 if tiene_punto:
                     email_bef_p = email[posicion_at + 1:posicion_punto]
                     if len(email_bef_p) == 0:
                         raise OrderManagementException("ContactEmail invalido")
-                    for i in range(len(email_bef_p)):
-                        if email_bef_p[i] not in caracteres_validos:
+                    for validos in email_bef_p:
+                        if validos not in caracteres_validos:
                             raise OrderManagementException("ContactEmail invalido")
                 else:
                     raise OrderManagementException("ContactEmail invalido")
@@ -215,22 +227,26 @@ class OrderManager:
                 email_aft_p = email[posicion_punto + 1:]
                 if len(email_aft_p) > 3:
                     raise OrderManagementException("ContactEmail invalido")
-                for i in range(len(email_aft_p)):
-                    if email_aft_p[i] not in caracteres_validos_ext:
+                if len(email_aft_p) < 1:
+                    raise OrderManagementException("ContactEmail invalido")
+                for validos in email_aft_p:
+                    if validos not in caracteres_validos_ext:
                         raise OrderManagementException("ContactEmail invalido")
         except FileNotFoundError as ex:
             raise OrderManagementException("Archivo no encontrado") from ex
         except json.JSONDecodeError as ex:
-            raise OrderManagementException("JSON Decode Error - El archivo no tiene formato JSON") from ex
+            raise OrderManagementException("JSON Decode Error - "
+                                           "El archivo no tiene formato JSON") from ex
 
     @staticmethod
     def comprobar_pedido(input_file, storage_file) -> list:
+        """..."""
         # Como ya se ha validado el fichero podemos abrirlo sin
         # realizar comprobaciones del mismo
-        with open(input_file, mode ='r', encoding="UTF-8") as file:
+        with open(input_file, mode='r', encoding="UTF-8") as file:
             datos = json.load(file)
             order_id = datos["OrderID"]
-        with open(storage_file, mode = 'r', encoding="UTF-8") as file:
+        with open(storage_file, mode='r', encoding="UTF-8") as file:
             storage = json.load(file)
             encontrado = False
             for pedido in storage:
@@ -243,9 +259,10 @@ class OrderManager:
 
     @staticmethod
     def almacenar_envio(tracking_code, delivery_day):
+        """..."""
         order = {"tracking_code": tracking_code, "delivery_day": delivery_day}
-        dir = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
-        file_store = dir + "shipping_storage.json"
+        direction = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
+        file_store = direction + "shipping_storage.json"
         if os.path.isfile(file_store) is False:
             with open(file_store, mode="w", encoding="UTF-8") as file:
                 listorder = [order]
@@ -263,11 +280,14 @@ class OrderManager:
 
     @staticmethod
     def send_product(input_file):
-        storage = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "storage.json"
+        """..."""
+        json_path = "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
+        storage = str(Path.home()) + json_path + "storage.json"
         OrderManager.validate_json(input_file)
+        OrderManager.comprobar_pedido(input_file, storage)
         pedido = OrderManager.comprobar_pedido(input_file, storage)
         # Para generar order_shipping
-        with open(input_file, mode ='r', encoding="UTF-8") as file:
+        with open(input_file, mode='r', encoding="UTF-8") as file:
             datos = json.load(file)
             order_id = datos["OrderID"]
             delivery_email = datos["ContactEmail"]
@@ -301,6 +321,7 @@ class OrderManager:
                     # devolvemos el deliver_day timestamp
                     return delivery_day
                 raise OrderManagementException("La fecha de entrega no es correcta")
+
         except FileNotFoundError as ex:
             raise OrderManagementException("El almacén esta vacío") from ex
 
@@ -340,6 +361,3 @@ class OrderManager:
         storage = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "shipping_storage.json"
         delivery_day = OrderManager.comprobar_envio(tracking_code, storage)
         OrderManager.almacenar_entrega(tracking_code, delivery_day)
-
-
-

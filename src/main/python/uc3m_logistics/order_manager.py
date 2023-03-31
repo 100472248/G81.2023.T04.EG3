@@ -1,6 +1,7 @@
 """Module """
 import json
 import os
+import re
 from pathlib import Path
 from datetime import datetime, date
 from uc3m_logistics.order_request import OrderRequest
@@ -11,6 +12,27 @@ class OrderManager:
     """Class for providing the methods for managing the orders"""
     def __init__(self):
         pass
+
+    @staticmethod
+    def regex_correo(correo):
+        regex = r'^[a-zA-Z0-9]+@[a-z]+(\.[a-z]{1,3})$'
+        if re.match(regex, correo):
+            return True
+        return False
+
+    @staticmethod
+    def regex_orderID(orderID):
+        regex = r'^[0-9a-fA-F]{32}$'
+        if re.match(regex, orderID):
+            return True
+        return False
+
+    @staticmethod
+    def regex_sha256(sha256):
+        regex = r'^[0-9a-fA-F]{64}$'
+        if re.match(regex, sha256):
+            return True
+        return False
 
     @staticmethod
     def validate_ean13(ean13_code):
@@ -178,60 +200,12 @@ class OrderManager:
                     raise OrderManagementException("OrderID invalido")
                 if len(order_id) != 32:
                     raise OrderManagementException("OrderID invalido")
-                caracteres_hex = "0123456789abcdef"
-                for iden in order_id:
-                    if iden not in caracteres_hex:
-                        raise OrderManagementException("OrderID invalido")
+                if not OrderManager.regex_orderID(order_id):
+                    raise OrderManagementException("OrderID invalido")
                 # Para comprobar si el formato de ContactEmail es correcto
                 email = datos["ContactEmail"]
-                # Comprobamos si tiene @ y si el formato entre el inicio del mail
-                # y esta es correcto
-                caracteres_validos = "qwertyuiopasdfghjklñzxcvbnm0123456789"
-                caracteres_validos_ext = "qwertyuiopasdfghjklñzxcvbnm"
-                tiene_at = False
-                posicion_at = 0
-                for i in range(len(email)):
-                    if email[i] == "@":
-                        tiene_at = True
-                        posicion_at = i
-                        break
-                if tiene_at:
-                    email_bef_at = email[0:posicion_at]
-                    if len(email_bef_at) == 0:
-                        raise OrderManagementException("ContactEmail invalido")
-                    for variable in email_bef_at:
-                        if variable not in caracteres_validos:
-                            raise OrderManagementException("ContactEmail invalido")
-                else:
+                if not OrderManager.regex_correo(email):
                     raise OrderManagementException("ContactEmail invalido")
-                # Comprobamos si tiene punto despues del arroba y si el formato entre
-                # el @ y el punto es correcto
-                # email_aft_at = email[posicion_at + 1:]
-                tiene_punto = False
-                posicion_punto = 0
-                for i in range(len(email)):
-                    if email[i] == ".":
-                        posicion_punto = i
-                        tiene_punto = True
-                        break
-                if tiene_punto:
-                    email_bef_p = email[posicion_at + 1:posicion_punto]
-                    if len(email_bef_p) == 0:
-                        raise OrderManagementException("ContactEmail invalido")
-                    for variable in email_bef_p:
-                        if variable not in caracteres_validos:
-                            raise OrderManagementException("ContactEmail invalido")
-                else:
-                    raise OrderManagementException("ContactEmail invalido")
-                # Comprobamos si la extension tiene el formato correcto
-                email_aft_p = email[posicion_punto + 1:]
-                if len(email_aft_p) > 3:
-                    raise OrderManagementException("ContactEmail invalido")
-                if len(email_aft_p) < 1:
-                    raise OrderManagementException("ContactEmail invalido")
-                for validos in email_aft_p:
-                    if validos not in caracteres_validos_ext:
-                        raise OrderManagementException("ContactEmail invalido")
         except FileNotFoundError as ex:
             raise OrderManagementException("Archivo no encontrado") from ex
         except json.JSONDecodeError as ex:
@@ -348,14 +322,12 @@ class OrderManager:
     def deliver_product(tracking_code):
         """..."""
         # Comprobamos que el tracking_code tiene un formato correcto
-        caracteres_hex = "0123456789abcdef"
         if not isinstance(tracking_code, str):
             raise OrderManagementException("Tracking_code no es un string")
         if len(tracking_code) != 64:
             raise OrderManagementException("Tracking_code no tiene la longitud adecuada")
-        for variable in tracking_code:
-            if variable not in caracteres_hex:
-                raise OrderManagementException("Tracking_code no es un hex")
+        if not OrderManager.regex_sha256(tracking_code):
+            raise OrderManagementException("Tracking_code no es un hex")
         # Comprobamos mediante una funcion si el envío
         # está en el almacen y la fecha es correcta y si es asi
         # se devolvera la fecha de entrega

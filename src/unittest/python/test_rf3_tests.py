@@ -1,15 +1,22 @@
 """..."""
 from datetime import datetime
 import unittest
-from pathlib import Path
 import os
 import json
+from pathlib import Path
 from uc3m_logistics import OrderManager
 from uc3m_logistics import OrderManagementException
 
 
 class MyTestRF3(unittest.TestCase):
     """Tests del ejercicio f3"""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        direction = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
+        file_store = direction + "delivery_storage.json"
+        if os.path.isfile(file_store):
+            os.remove(file_store)
 
     def test_tracking_code_not_str(self):
         """..."""

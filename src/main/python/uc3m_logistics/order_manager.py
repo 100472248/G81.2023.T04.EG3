@@ -15,20 +15,23 @@ class OrderManager:
 
     @staticmethod
     def regex_correo(correo):
+        """..."""
         regex = r'^[a-zA-Z0-9]+@[a-z]+(\.[a-z]{1,3})$'
         if re.match(regex, correo):
             return True
         return False
 
     @staticmethod
-    def regex_orderID(orderID):
+    def regex_order_id(order_id):
+        """..."""
         regex = r'^[0-9a-fA-F]{32}$'
-        if re.match(regex, orderID):
+        if re.match(regex, order_id):
             return True
         return False
 
     @staticmethod
     def regex_sha256(sha256):
+        """..."""
         regex = r'^[0-9a-fA-F]{64}$'
         if re.match(regex, sha256):
             return True
@@ -200,7 +203,7 @@ class OrderManager:
                     raise OrderManagementException("OrderID invalido")
                 if len(order_id) != 32:
                     raise OrderManagementException("OrderID invalido")
-                if not OrderManager.regex_orderID(order_id):
+                if not OrderManager.regex_order_id(order_id):
                     raise OrderManagementException("OrderID invalido")
                 # Para comprobar si el formato de ContactEmail es correcto
                 email = datos["ContactEmail"]

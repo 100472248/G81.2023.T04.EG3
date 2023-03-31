@@ -1,5 +1,7 @@
 """class for testing the regsiter_order method"""
 import unittest
+import os
+from pathlib import Path
 from uc3m_logistics import OrderManager
 from uc3m_logistics import OrderManagementException
 from freezegun import freeze_time
@@ -7,6 +9,13 @@ from freezegun import freeze_time
 
 class MyTestCase(unittest.TestCase):
     """class for testing the register_order method"""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        direction = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
+        file_store = direction + "storage.json"
+        if os.path.isfile(file_store):
+            os.remove(file_store)
 
     @freeze_time("2023-03-24")
     def test_all_correct(self):

@@ -1,5 +1,6 @@
 """..."""
 import unittest
+import os
 from pathlib import Path
 from uc3m_logistics import OrderManager
 from uc3m_logistics import OrderManagementException
@@ -8,6 +9,14 @@ from freezegun import freeze_time
 
 class MyTestRF2(unittest.TestCase):
     """Tests del ejercicio f2"""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        direction = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
+        file_store = direction + "shipping_storage.json"
+        if os.path.isfile(file_store):
+            os.remove(file_store)
+
 
     @freeze_time("2023-03-24")
     def test_node1_valid(self):

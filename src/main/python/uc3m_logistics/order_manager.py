@@ -15,7 +15,7 @@ class OrderManager:
     @staticmethod
     def validate_ean13(ean13_code):
         """Este método devuelve (bool) si un string almacena un código EAN13"""
-        if type(ean13_code) is not str:
+        if not isinstance(ean13_code, str):
             raise OrderManagementException("EAN13 not string")
         lista = "0123456789"
         for letter in ean13_code:
@@ -47,13 +47,12 @@ class OrderManager:
             num = 10 - modulo
         if num == int(ean13_code[12]):
             return True
-        else:
-            raise OrderManagementException("No cumple el checksum")
+        raise OrderManagementException("No cumple el checksum")
 
     @staticmethod
     def validate_address(address):
         """..."""
-        if type(address) is not str:
+        if not isinstance(address, str):
             raise OrderManagementException("Address not string")
         if len(address) > 100:
             raise OrderManagementException("Dirección más larga de lo habitual")
@@ -70,7 +69,7 @@ class OrderManager:
     @staticmethod
     def validate_phone_number(phone_number):
         """..."""
-        if type(phone_number) is not str:
+        if not isinstance(phone_number, str):
             raise OrderManagementException("Phone_number not str")
         lista = "0123456789"
         for number in phone_number:
@@ -85,7 +84,7 @@ class OrderManager:
     @staticmethod
     def validate_order_type(order_type):
         """..."""
-        if type(order_type) is not str:
+        if not isinstance(order_type, str):
             raise OrderManagementException("Order_type not str")
         if order_type not in ["REGULAR", "PREMIUM"]:
             raise OrderManagementException("Order_type no es REGULAR o PREMIUM")
@@ -94,7 +93,7 @@ class OrderManager:
     @staticmethod
     def validate_zip_code(zip_code):
         """..."""
-        if type(zip_code) is not str:
+        if not isinstance(zip_code, str):
             raise OrderManagementException("Zip_code not str")
         lista = "0123456789"
         for code in zip_code:
@@ -175,7 +174,7 @@ class OrderManager:
                     raise OrderManagementException("Estructura del fichero incorrecta")
                 # Para comprobar si el formato de order_id es correcto
                 order_id = datos["OrderID"]
-                if type(order_id) is not str:
+                if not isinstance(order_id, str):
                     raise OrderManagementException("OrderID invalido")
                 if len(order_id) != 32:
                     raise OrderManagementException("OrderID invalido")
@@ -200,8 +199,8 @@ class OrderManager:
                     email_bef_at = email[0:posicion_at]
                     if len(email_bef_at) == 0:
                         raise OrderManagementException("ContactEmail invalido")
-                    for i in range(len(email_bef_at)):
-                        if email_bef_at[i] not in caracteres_validos:
+                    for variable in email_bef_at:
+                        if variable not in caracteres_validos:
                             raise OrderManagementException("ContactEmail invalido")
                 else:
                     raise OrderManagementException("ContactEmail invalido")
@@ -219,8 +218,8 @@ class OrderManager:
                     email_bef_p = email[posicion_at + 1:posicion_punto]
                     if len(email_bef_p) == 0:
                         raise OrderManagementException("ContactEmail invalido")
-                    for i in range(len(email_bef_p)):
-                        if email_bef_p[i] not in caracteres_validos:
+                    for variable in email_bef_p:
+                        if variable not in caracteres_validos:
                             raise OrderManagementException("ContactEmail invalido")
                 else:
                     raise OrderManagementException("ContactEmail invalido")
@@ -250,6 +249,7 @@ class OrderManager:
         with open(storage_file, mode='r', encoding="UTF-8") as file:
             storage = json.load(file)
             encontrado = False
+            pedido = None
             for pedido in storage:
                 if pedido["OrderID"] == order_id:
                     encontrado = True
@@ -301,11 +301,13 @@ class OrderManager:
 
     @staticmethod
     def comprobar_envio(tracking_code, storage):
+        """"..."""
         try:
             # Primero comprobamos que existe el tracking_code
             with open(storage, mode='r', encoding="UTF-8") as file:
                 datos = json.load(file)
                 encontrado = False
+                envio = None
                 for envio in datos:
                     if envio["tracking_code"] == tracking_code:
                         encontrado = True
@@ -326,9 +328,10 @@ class OrderManager:
 
     @staticmethod
     def almacenar_entrega(tracking_code, delivery_day):
+        """..."""
         order = {"tracking_code": tracking_code, "delivery_day": delivery_day}
-        dir = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
-        file_store = dir + "delivery_storage.json"
+        direccion = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/"
+        file_store = direccion + "delivery_storage.json"
         if os.path.isfile(file_store) is False:
             with open(file_store, mode="w", encoding="UTF-8") as file:
                 listorder = [order]
@@ -343,18 +346,22 @@ class OrderManager:
 
     @staticmethod
     def deliver_product(tracking_code):
+        """..."""
         # Comprobamos que el tracking_code tiene un formato correcto
         caracteres_hex = "0123456789abcdef"
-        if type(tracking_code) is not str:
+        if not isinstance(tracking_code, str):
             raise OrderManagementException("Tracking_code no es un string")
         if len(tracking_code) != 64:
             raise OrderManagementException("Tracking_code no tiene la longitud adecuada")
-        for i in range(len(tracking_code)):
-            if tracking_code[i] not in caracteres_hex:
+        for variable in tracking_code:
+            if variable not in caracteres_hex:
                 raise OrderManagementException("Tracking_code no es un hex")
-        # Comprobamos mediante una funcion si el envío está en el almacen y la fecha es correcta y si es asi
+        # Comprobamos mediante una funcion si el envío
+        # está en el almacen y la fecha es correcta y si es asi
         # se devolvera la fecha de entrega
-        storage = str(Path.home()) + "/PycharmProjects/G81.2023.T04.EG3/src/Jsonfiles/" + "shipping_storage.json"
+        storage = str(Path.home()) + "/PycharmProjects/" \
+                                     "G81.2023.T04.EG3/src" \
+                                     "/Jsonfiles/" + "shipping_storage.json"
         delivery_day = OrderManager.comprobar_envio(tracking_code, storage)
         OrderManager.almacenar_entrega(tracking_code, delivery_day)
         return True

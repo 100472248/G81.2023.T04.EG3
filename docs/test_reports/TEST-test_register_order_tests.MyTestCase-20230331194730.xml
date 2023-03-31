@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="test_register_order_tests.MyTestCase-20230331194730" tests="26" file="test_register_order_tests.py" time="0.319" timestamp="2023-03-31T19:47:31" failures="0" errors="0" skipped="0">
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_address_str" time="0.001" timestamp="2023-03-31T19:47:30"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_address_too_long" time="0.002" timestamp="2023-03-31T19:47:30"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_address_too_short" time="0.002" timestamp="2023-03-31T19:47:30"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_all_correct" time="0.218" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_ean13_corto" time="0.001" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_ean13_largo" time="0.001" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_ean13_not_number" time="0.001" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_ean13_not_string" time="0.001" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_not_check_sum" time="0.001" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_order_premium" time="0.013" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_order_str" time="0.001" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_order_wrong" time="0.001" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_phone_not_str" time="0.001" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_phone_numbers" time="0.001" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_phone_too_long" time="0.002" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_phone_too_short" time="0.001" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_spaces" time="0.001" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_vl5" time="0.014" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_vl6" time="0.016" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_vl7" time="0.015" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_vl8" time="0.016" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_zip_initials" time="0.001" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_zip_long" time="0.002" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_zip_not_number" time="0.002" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_zip_numbers" time="0.002" timestamp="2023-03-31T19:47:31"/>
+	<testcase classname="test_register_order_tests.MyTestCase" name="test_zip_short" time="0.002" timestamp="2023-03-31T19:47:31"/>
+</testsuite>

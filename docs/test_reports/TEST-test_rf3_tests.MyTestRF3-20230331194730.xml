@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="test_rf3_tests.MyTestRF3-20230331194730" tests="8" file="test_rf3_tests.py" time="0.042" timestamp="2023-03-31T19:47:32" failures="0" errors="0" skipped="0">
+	<testcase classname="test_rf3_tests.MyTestRF3" name="test_delivery_day_wrong" time="0.008" timestamp="2023-03-31T19:47:32"/>
+	<testcase classname="test_rf3_tests.MyTestRF3" name="test_empty_storage" time="0.003" timestamp="2023-03-31T19:47:32"/>
+	<testcase classname="test_rf3_tests.MyTestRF3" name="test_shipping_not_found" time="0.004" timestamp="2023-03-31T19:47:32"/>
+	<testcase classname="test_rf3_tests.MyTestRF3" name="test_tracking_code_len_wrong" time="0.003" timestamp="2023-03-31T19:47:32"/>
+	<testcase classname="test_rf3_tests.MyTestRF3" name="test_tracking_code_not_hex" time="0.002" timestamp="2023-03-31T19:47:32"/>
+	<testcase classname="test_rf3_tests.MyTestRF3" name="test_tracking_code_not_str" time="0.001" timestamp="2023-03-31T19:47:32"/>
+	<testcase classname="test_rf3_tests.MyTestRF3" name="test_valid_no_register" time="0.013" timestamp="2023-03-31T19:47:32"/>
+	<testcase classname="test_rf3_tests.MyTestRF3" name="test_valid_with_register" time="0.008" timestamp="2023-03-31T19:47:32"/>
+</testsuite>
